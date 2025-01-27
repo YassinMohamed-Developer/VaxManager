@@ -18,5 +18,13 @@ namespace Vax.Service.Interface
 		public Task<BaseResult<string>> UpdatePatientProfile(PatientRequestDto patientRequestDto,string appuserid);
 
 		public Task<BaseResult<string>> DeleteProfile(int PatientId);
+
+		public Task<BaseResult<string>> PatientReservation(ReservationRequestDto reservationRequestDto,string appuserid);
+
+		public Task<BaseResult<IReadOnlyList<ReservationResponseDto>>> GetAllReservation();
+
+		public Task<BaseResult<ReservationResponseDto>> GetReservationById(int Id);
+
+		public Task<BaseResult<string>> CancelReservation(int Id);
 	}
 }

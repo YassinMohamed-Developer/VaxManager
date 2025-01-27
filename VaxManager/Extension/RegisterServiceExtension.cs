@@ -26,6 +26,7 @@ namespace VaxManager.Extension
 			service.AddAutoMapper(typeof(PatientProfile));
 			service.AddAutoMapper(typeof(VaccineCenterProfile));
 			service.AddAutoMapper(typeof(Vaccine));
+			service.AddAutoMapper(typeof(ReservationProfile));
 
 			service.Configure<ApiBehaviorOptions>(option =>
 			{
