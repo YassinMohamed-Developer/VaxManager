@@ -126,5 +126,17 @@ namespace VaxManager.Controllers
 			}
 			return Ok(Result);
 		}
+		[Authorize(Roles = "Patient")]
+		[HttpGet("{VaccineCenterId}")]
+		public async Task<ActionResult<BaseResult<VaccineCenterWithVaccinesResponseDto>>> GetVaccineCenterwithVaccines(int VaccineCenterId)
+		{
+			var Result = await _patientService.GetVaccineCenterWithVaccines(VaccineCenterId);
+
+			if (!Result.IsSuccess)
+			{
+				return BadRequest(Result);
+			}
+			return Ok(Result);
+		}
 	}
 }

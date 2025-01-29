@@ -12,6 +12,7 @@ namespace Vax.Service.DTOS.RequestDto
 		[Required]
 		[EmailAddress]
 		public string Email {  get; set; }
+
 		[Required]
 		public string UserName {  get; set; }
 

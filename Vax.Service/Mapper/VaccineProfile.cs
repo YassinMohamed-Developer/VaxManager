@@ -18,6 +18,9 @@ namespace Vax.Service.Mapper
                 .ForMember(dest => dest.VaccineCenterName, options => options.MapFrom(src => src.VaccineCenter.Name));
 
             CreateMap<VaccineRequestDto, Vaccine>();
+
+
+            CreateMap<Vaccine, VaccineCenterWithVaccinesResponseDto>();
         }
     }
 }

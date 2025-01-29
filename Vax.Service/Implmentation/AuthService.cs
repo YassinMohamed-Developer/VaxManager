@@ -68,7 +68,7 @@ namespace Vax.Service.Implmentation
 			var appuser = new AppUser
 			{
 				Email = registerDto.Email,
-				UserName = registerDto.UserName,
+				UserName = registerDto.UserName.Trim(),
 				PhoneNumber = registerDto.PhoneNumber,
 			};
 
@@ -80,7 +80,7 @@ namespace Vax.Service.Implmentation
 				return new BaseResult<string> { Data = appuser.Id.ToString(), IsSuccess = true, Message = "Register Successfully." };
 			}
 
-			throw new CustomException($"{result.Errors}") { StatusCode = (int)HttpStatusCode.InternalServerError };
+			throw new CustomException($"{result}") { StatusCode = (int)HttpStatusCode.InternalServerError };
 		}
 	}
 }

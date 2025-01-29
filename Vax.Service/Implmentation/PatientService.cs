@@ -124,6 +124,20 @@ namespace Vax.Service.Implmentation
 			return new BaseResult<ReservationResponseDto> { Data = Map, Message = "Data Retrieve Successfully " };
 		}
 
+		public async Task<BaseResult<VaccineCenterWithVaccinesResponseDto>> GetVaccineCenterWithVaccines(int VaccineCenterId)
+		{
+			var vaccineCenter = await _unitOfWork.VaccinesCenter.FindAsync(X => X.Id == VaccineCenterId, includes: ["Vaccines"]);
+
+			if(vaccineCenter == null)
+			{
+				throw new CustomException("No Vaccine Center Not Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+			}
+
+			var Map = _mapper.Map<VaccineCenterWithVaccinesResponseDto>(vaccineCenter);
+
+			return new BaseResult<VaccineCenterWithVaccinesResponseDto> { Data = Map,Message = "Data Retrieve Successfully" };
+		}
+
 		public async Task<BaseResult<string>> PatientReservation(ReservationRequestDto reservationRequestDto, string appuserid)
 		{
 			var Patient = await _unitOfWork.Patients.FindAsync(x => x.AppUserId == appuserid);

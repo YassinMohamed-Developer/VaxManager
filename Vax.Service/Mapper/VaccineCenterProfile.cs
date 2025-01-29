@@ -18,6 +18,10 @@ namespace Vax.Service.Mapper
             CreateMap<VaccineCenterResponseDto, VaccineCenter>();
             CreateMap<VaccineCenter,VaccineCenterRequestDto>();
             CreateMap<VaccineCenterRequestDto, VaccineCenter>();
+
+            CreateMap<VaccineCenter, VaccineCenterWithVaccinesResponseDto>();
+
+            
         }
     }
 }

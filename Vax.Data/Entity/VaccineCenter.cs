@@ -22,6 +22,8 @@ namespace Vax.Data.Entity
 
 		public string? AppUserId { get; set; }
 
+		public ICollection<Vaccine> Vaccines { get; set; } = [];
+
 		public ICollection<Reservation> Reservations { get; set; } = [];
 	}
 }

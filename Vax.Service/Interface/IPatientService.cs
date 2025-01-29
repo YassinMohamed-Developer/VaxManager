@@ -26,5 +26,7 @@ namespace Vax.Service.Interface
 		public Task<BaseResult<ReservationResponseDto>> GetReservationById(int Id);
 
 		public Task<BaseResult<string>> CancelReservation(int Id);
+
+		public Task<BaseResult<VaccineCenterWithVaccinesResponseDto>> GetVaccineCenterWithVaccines(int VaccineCenterId);
 	}
 }
