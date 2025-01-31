@@ -21,6 +21,7 @@ namespace Vax.Service.Mapper
 
 
             CreateMap<Vaccine, VaccineCenterWithVaccinesResponseDto>();
+
         }
     }
 }

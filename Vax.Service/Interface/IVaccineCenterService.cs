@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vax.Data.Entity;
 using Vax.Service.DTOS.RequestDto;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
@@ -29,5 +30,11 @@ namespace Vax.Service.Interface
 
 
 		public Task<BaseResult<string>> DeleteVaccine(int Id);
+
+		public Task<BaseResult<string>> ApproveReservationById(int Id,string appuserid);
+
+		public Task<BaseResult<string>> RejectReservationById(int Id, string appuserid);
+
+		public Task<BaseResult<IReadOnlyList<PatientsWithVaccines>>> GetPatientsWithVaccines(string appuserid);
 	}
 }

@@ -124,5 +124,49 @@ namespace VaxManager.Controllers
 			}
 			return Ok(result);
 		}
+
+		[Authorize(Roles = "VaccineCenter")]
+		[HttpPut("{ReservationId}")]
+		public async Task<ActionResult<BaseResult<string>>> ApproveReservationById(int ReservationId)
+		{
+			var AppUser = User.FindFirst("UserId").Value;
+
+			var Result = await _service.ApproveReservationById(ReservationId, AppUser);
+
+			if (!Result.IsSuccess)
+			{
+				return BadRequest(Result);
+			}
+			return Ok(Result);
+		}
+		[Authorize(Roles = "VaccineCenter")]
+		[HttpPut("{ReservationId}")]
+		public async Task<ActionResult<BaseResult<string>>> RejectReservationById(int ReservationId)
+		{
+			var AppUserId = User.FindFirst("UserId").Value;
+
+			var Result = await _service.RejectReservationById(ReservationId, AppUserId);
+
+			if (!Result.IsSuccess)
+			{
+				return BadRequest(Result);
+			}
+			return Ok(Result);
+		}
+
+		[Authorize(Roles = "VaccineCenter")]
+		[HttpGet("all")]
+		public async Task<ActionResult<BaseResult<PatientsWithVaccines>>> GetPatientsWithVaccines()
+		{
+			var AppUserid = User.FindFirst("UserId").Value;
+
+			var result = await _service.GetPatientsWithVaccines(AppUserid);
+
+			if (!result.IsSuccess)
+			{
+				return BadRequest(result);
+			}
+			return Ok(result);
+		}
 	}
 }

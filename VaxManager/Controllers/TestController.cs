@@ -9,6 +9,7 @@ namespace VaxManager.Controllers
 {
 	[Route("api/[controller]/[action]")]
 	[ApiController]
+	[ApiExplorerSettings(IgnoreApi =true)]
 	public class TestController : ControllerBase
 	{
 		private readonly ITestService _testService;

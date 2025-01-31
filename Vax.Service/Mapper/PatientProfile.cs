@@ -18,6 +18,7 @@ namespace Vax.Service.Mapper
             CreateMap<PatientRequestDto, Patient>();
             CreateMap<Patient, PatientResponseDto>();
             CreateMap<PatientResponseDto, Patient>();
+
         }
 	}
 }
