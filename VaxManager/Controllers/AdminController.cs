@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
 using Vax.Service.Interface;
+using Vax.Service.SignalR;
 
 namespace VaxManager.Controllers
 {
@@ -12,11 +14,13 @@ namespace VaxManager.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+		private readonly IHubContext<NotificationHub> _hubContext;
 
-        public AdminController(IAdminService adminService)
+		public AdminController(IAdminService adminService,IHubContext<NotificationHub> hubContext)
         {
             _adminService = adminService;
-        }
+			_hubContext = hubContext;
+		}
 
         [Authorize(Roles = "Admin")]
         [HttpGet("all")]
@@ -56,6 +60,14 @@ namespace VaxManager.Controllers
             }
 
             return Ok(result);
+        }
+        [Authorize(Roles ="Admin")]
+        [HttpGet]
+        public async Task<ActionResult<BaseResult<string>>> SendNotify(string message)
+        {
+            await _hubContext.Clients.All.SendAsync("ReceiveMessage", message);
+
+            return Ok(message);
         }
 
     }

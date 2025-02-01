@@ -14,6 +14,7 @@ using Vax.Repository.Interface;
 using Vax.Service.Helper;
 using Vax.Service.Implmentation;
 using Vax.Service.Interface;
+using Vax.Service.SignalR;
 using VaxManager.Extension;
 using VaxManager.Helper;
 using VaxManager.Middlewares;
@@ -39,6 +40,14 @@ namespace VaxManager
 			{
 				option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 			});
+			builder.Services.AddSignalR();
+			builder.Services.AddCors(o =>
+			{
+				o.AddPolicy("default", x =>
+				{
+					x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+				});
+			});
 			builder.Services.RegisterService();
 			builder.Services.IdentityService(builder.Configuration);
 			builder.Services.SwaggerService();
@@ -55,12 +64,16 @@ namespace VaxManager
 				app.UseSwaggerUI();
 			}
 			app.UseHttpsRedirection();
+			app.UseStaticFiles();
 			app.UseRouting();
 			app.UseAuthentication();
 			app.UseAuthorization();
 
+			app.UseCors("default");
+
 			app.MapControllers();
 
+			app.MapHub<NotificationHub>("/NotificationHub");
 			app.Run();
 		}
 	}
