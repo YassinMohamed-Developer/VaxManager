@@ -20,7 +20,7 @@ namespace VaxManager.Extension
 			service.AddScoped<IAdminService, AdminService>();
 			service.AddScoped<IPatientService, PatientService>();
 			service.AddScoped<IVaccineCenterService, VaccineCenterService>();
-
+			service.AddScoped<IEmailService, EmailService>();
 
 			service.AddAutoMapper(typeof(AdminProfile));
 			service.AddAutoMapper(typeof(PatientProfile));

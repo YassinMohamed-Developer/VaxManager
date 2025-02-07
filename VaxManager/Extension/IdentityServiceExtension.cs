@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -14,7 +15,8 @@ namespace VaxManager.Extension
 			services.AddIdentityCore<AppUser>().AddRoles<IdentityRole>()
 			.AddEntityFrameworkStores<Vaxdbcontext>()
 			.AddSignInManager<SignInManager<AppUser>>()
-			.AddRoleManager<RoleManager<IdentityRole>>();
+			.AddRoleManager<RoleManager<IdentityRole>>()
+			.AddDefaultTokenProviders();
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				.AddJwtBearer(option =>

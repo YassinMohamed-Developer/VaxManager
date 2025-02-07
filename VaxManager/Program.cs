@@ -35,6 +35,7 @@ namespace VaxManager
 			builder.Services.AddSwaggerGen();
 
 			builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("Token"));
+			builder.Services.Configure<MailSettingsOptions>(builder.Configuration.GetSection("MailSettings"));
 
 			builder.Services.AddDbContext<Vaxdbcontext>(option =>
 			{

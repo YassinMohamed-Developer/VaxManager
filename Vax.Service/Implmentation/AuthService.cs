@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure.Messaging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using Vax.Data.Entity;
@@ -19,14 +23,21 @@ namespace Vax.Service.Implmentation
 		private readonly SignInManager<AppUser> _signInManager;
 		private readonly UserManager<AppUser> _userManager;
 		private readonly ITokenService _tokenService;
+		private readonly IEmailService _emailService;
 
-		public AuthService(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager,ITokenService tokenService)
+		public AuthService(SignInManager<AppUser> signInManager
+			, UserManager<AppUser> userManager
+			,ITokenService tokenService,
+			IEmailService emailService)
         {
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_tokenService = tokenService;
+			_emailService = emailService;
 		}
-        public async Task<BaseResult<TokenDto>> LoginAsync(LoginDto loginDto)
+
+
+		public async Task<BaseResult<TokenDto>> LoginAsync(LoginDto loginDto)
 		{
 			var email = await _userManager.FindByEmailAsync(loginDto.Email);
 
@@ -49,6 +60,8 @@ namespace Vax.Service.Implmentation
 
 			return new BaseResult<TokenDto> { Data = MakeToken,Message = "Login Successfully." };
 		}
+
+
 
 		public async Task<BaseResult<string>> RegisterAsync(RegisterDto registerDto, string accountype)
 		{
@@ -81,6 +94,57 @@ namespace Vax.Service.Implmentation
 			}
 
 			throw new CustomException($"{result}") { StatusCode = (int)HttpStatusCode.InternalServerError };
+		}
+
+		public async Task<BaseResult<string>> ResetPassword(ResetPasswordDto resetPasswordDto)
+		{
+			var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email!);
+
+			if (user is null)
+			{
+				throw new CustomException("This Email is Invalid") { StatusCode = (int)HttpStatusCode.BadRequest };
+			}
+
+			var result = await _userManager.ResetPasswordAsync(user,resetPasswordDto.token!,resetPasswordDto.Password);
+
+			if (!result.Succeeded)
+			{
+				throw new CustomException("The Operation not Complete") { StatusCode = (int)HttpStatusCode.BadRequest };
+			}
+
+			return new BaseResult<string> { IsSuccess = true, Message = "Your Password is Changed" };
+		}
+		public async Task<BaseResult<string>> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+		{
+			var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+
+			if (user is  null)
+			{
+				throw new CustomException("This Email is Invalid") { StatusCode = (int)HttpStatusCode.BadRequest };
+			}
+
+			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+			//var param = new Dictionary<string, string>
+			//{
+			//	{"token",token },
+			//	{"email",forgotPasswordDto.Email }
+			//};
+
+			//var callback = QueryHelpers.AddQueryString("https://localhost:7024/api/auth/forgotpassword", param);
+
+
+
+			var message = new EmailDto
+			{
+				To = forgotPasswordDto.Email,
+				Subject = "Reset Password Token",
+				Body = token,
+			};
+
+			 _emailService.SendEmail(message);
+
+			return new BaseResult<string> { IsSuccess = true, Message = "Check Your Mail Please" };
 		}
 	}
 }

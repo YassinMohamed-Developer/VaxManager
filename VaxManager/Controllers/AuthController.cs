@@ -57,5 +57,29 @@ namespace VaxManager.Controllers
 
 			return Ok(result);
 		}
+
+		[HttpPost]
+		public async Task<ActionResult<BaseResult<string>>> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+		{
+
+			var result = await _authService.ForgotPassword(forgotPasswordDto);
+
+			if (!result.IsSuccess)
+			{
+				return BadRequest(result);
+			}
+			return Ok(result);
+		}
+		[HttpPost]
+		public async Task<ActionResult<BaseResult<string>>> ResetPassword(ResetPasswordDto resetPasswordDto)
+		{
+			var result = await _authService.ResetPassword(resetPasswordDto);
+
+			if (!result.IsSuccess)
+			{
+				return BadRequest(result);
+			}
+			return Ok(result);
+		}
 	}
 }
