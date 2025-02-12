@@ -36,6 +36,7 @@ namespace VaxManager
 
 			builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("Token"));
 			builder.Services.Configure<MailSettingsOptions>(builder.Configuration.GetSection("MailSettings"));
+			builder.Services.Configure<TwilioOption>(builder.Configuration.GetSection("Twilio"));
 
 			builder.Services.AddDbContext<Vaxdbcontext>(option =>
 			{
