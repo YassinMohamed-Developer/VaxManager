@@ -58,6 +58,17 @@ namespace Vax.Service.Implmentation
 				Token = await _tokenService.GenerateToken(email)
 			};
 
+			//These Part Is Working Well But I Use Twilio Trail then i can't send Sms to someOne doesn't verfied 
+			//his number in Twilio Account
+
+			//var Message = new SmsMessageDto
+			//{
+			//    Body = "You have successfully registered on our website. We wish you a speedy recovery. <3!",
+			//    PhoneNumber = email.PhoneNumber,
+			//};
+
+			//_smsService.Send(Message);
+
 			return new BaseResult<TokenDto> { Data = MakeToken,Message = "Login Successfully." };
 		}
 
