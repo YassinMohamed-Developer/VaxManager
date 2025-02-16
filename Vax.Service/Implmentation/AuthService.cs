@@ -43,7 +43,7 @@ namespace Vax.Service.Implmentation
 
 			if(email == null)
 			{
-				throw new CustomException($"Email: {loginDto.Email} Not Valid");
+				throw new CustomException($"Email: {loginDto.Email} Not Valid") { StatusCode = (int)HttpStatusCode.BadRequest};
 			}
 			var signin = await _signInManager.CheckPasswordSignInAsync(email, loginDto.Password,false);
 

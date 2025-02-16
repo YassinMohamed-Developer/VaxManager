@@ -24,7 +24,7 @@ namespace  VaxManager.Middlewares
 			{
 				var response = context.Response;
 				response.ContentType = "application/json";
-				var responseModel = new BaseResult<string>() { IsSuccess = false, Message = error?.Message };
+				var responseModel = new BaseResult<string>() { IsSuccess = false, Errors = [error?.Message] };
 				switch (error)
 				{
 					case CustomException e:

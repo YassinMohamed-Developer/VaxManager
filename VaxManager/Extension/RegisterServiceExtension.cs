@@ -33,7 +33,7 @@ namespace VaxManager.Extension
 			{
 				option.InvalidModelStateResponseFactory = (actionContext) =>
 				{
-					var error = actionContext.ModelState.Where(p => p.Value?.Errors.Count() > 0)
+					var error = actionContext.ModelState.Where(p => p.Value?.Errors.Count > 0)
 													.SelectMany(e => e.Value.Errors)
 													.Select(m => m.ErrorMessage)
 													.ToList();
