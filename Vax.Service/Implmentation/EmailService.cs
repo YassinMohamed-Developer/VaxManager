@@ -37,7 +37,7 @@ namespace Vax.Service.Implmentation
 			mail.From.Add(new MailboxAddress(_options.DisplayName,_options.Email));
 
 			var builder = new BodyBuilder();
-			builder.TextBody = emailDto.Body;
+			builder.HtmlBody = emailDto.Body;
 
 			mail.Body = builder.ToMessageBody();
 

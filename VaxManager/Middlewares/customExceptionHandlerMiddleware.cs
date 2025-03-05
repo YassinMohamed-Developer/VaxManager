@@ -31,10 +31,6 @@ namespace  VaxManager.Middlewares
 						// custom application error
 						response.StatusCode = e.StatusCode;
 						break;
-					//case KeyNotFoundException e:
-					//    // not found error
-					//    response.StatusCode = (int)HttpStatusCode.NotFound;
-					//    break;
 					default:
 						// unhandled error
 						response.StatusCode = (int)HttpStatusCode.InternalServerError;

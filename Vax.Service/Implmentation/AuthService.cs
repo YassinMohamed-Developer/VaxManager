@@ -144,13 +144,22 @@ namespace Vax.Service.Implmentation
 
 			//var callback = QueryHelpers.AddQueryString("https://localhost:7024/api/auth/forgotpassword", param);
 
+			var callback = $"https://localhost:7024/api/auth/resetpassword?userEmail={user.Email}&token={token}";
 
+			var emailbody = $@"
+								<html>
+								<body>
+										<h4>ResetPassword</h4>
+										<p>Click Here in the Link to Reset Password</p>
+										<a href='{callback}' style='text-decoration: none; color: blue;'>Reset Passowrd</a>
+								</body>
+								</html>";
 
 			var message = new EmailDto
 			{
 				To = forgotPasswordDto.Email,
 				Subject = "Reset Password Token",
-				Body = token,
+				Body = emailbody,
 			};
 
 			 _emailService.SendEmail(message);
