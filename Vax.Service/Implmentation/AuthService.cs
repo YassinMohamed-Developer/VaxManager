@@ -1,7 +1,10 @@
 ﻿using Azure.Messaging;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,16 +27,19 @@ namespace Vax.Service.Implmentation
 		private readonly UserManager<AppUser> _userManager;
 		private readonly ITokenService _tokenService;
 		private readonly IEmailService _emailService;
+		private readonly IConfiguration _configuration;
 
 		public AuthService(SignInManager<AppUser> signInManager
 			, UserManager<AppUser> userManager
 			,ITokenService tokenService,
-			IEmailService emailService)
+			IEmailService emailService,
+			IConfiguration configuration)
         {
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_tokenService = tokenService;
 			_emailService = emailService;
+			_configuration = configuration;
 		}
 
 
@@ -165,6 +171,65 @@ namespace Vax.Service.Implmentation
 			 _emailService.SendEmail(message);
 
 			return new BaseResult<string> { IsSuccess = true, Message = "Check Your Mail Please" };
+		}
+		public async Task<BaseResult<TokenDto>> GoogleSigninAsync(string token)
+		{
+			try
+			{
+				var payload = await ValidateGoogleTokenAsync(token);
+
+				var user = await _userManager.Users.FirstOrDefaultAsync(user => user.UserName == payload.Data.Subject);
+
+				if (user is null)
+				{
+					user = new AppUser
+					{
+						UserName = payload.Data.Subject,
+						Email = payload.Data.Email,
+					};
+
+					var isfirstuser = !_userManager.Users.Any();
+
+					var result = await _userManager.CreateAsync(user);
+
+					if (!result.Succeeded)
+					{
+						throw new CustomException("Failed To Create User") { StatusCode = (int)HttpStatusCode.BadRequest };
+					}
+				}
+
+				var tokens = await _tokenService.GenerateToken(user);
+
+				var MakeToken = new TokenDto
+				{
+					Token = tokens,
+					TokenType = "Bearer",
+				};
+
+				return new BaseResult<TokenDto> { Data = MakeToken };
+			}
+			catch (CustomException ex)
+			{
+
+				throw new CustomException($"Google Authentcation Failed{ex.Message}");
+			}
+		}
+
+		public async Task<BaseResult<GoogleJsonWebSignature.Payload>> ValidateGoogleTokenAsync(string token)
+		{
+			var settings = new GoogleJsonWebSignature.ValidationSettings
+			{
+				Audience = new[] { _configuration["Authentication:Google:ClientId"] }
+			};
+
+			var payload = await GoogleJsonWebSignature.ValidateAsync(token, settings);
+
+			if (payload == null || string.IsNullOrEmpty(payload.Email))
+			{
+				throw new CustomException("Invalid Token") { StatusCode = (int)HttpStatusCode.Unauthorized };
+			}
+
+			return new BaseResult<GoogleJsonWebSignature.Payload> { Data = payload };
 		}
 	}
 }

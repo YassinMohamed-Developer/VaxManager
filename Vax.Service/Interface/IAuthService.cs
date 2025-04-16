@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Apis.Auth;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,5 +23,9 @@ namespace Vax.Service.Interface
 		//ForgotPassword
 		public Task<BaseResult<string>> ForgotPassword(ForgotPasswordDto forgotPasswordDto);
 		//Login Using Any ExternalSignIn
+
+		Task<BaseResult<TokenDto>> GoogleSigninAsync(string token);
+
+		Task<BaseResult<GoogleJsonWebSignature.Payload>> ValidateGoogleTokenAsync(string token);
 	}
 }
