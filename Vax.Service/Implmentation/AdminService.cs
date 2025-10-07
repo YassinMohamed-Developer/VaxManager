@@ -25,7 +25,6 @@ namespace Vax.Service.Implmentation
         public async Task<BaseResult<AdminResponseDto>> GetAdminById(int id)
 		{
 			var admin = await _unitOfWork.Admins.GetByIdAsync(id);
-
 			if (admin == null)
 			{
 				throw new CustomException("Admin Not Found") { StatusCode = (int)HttpStatusCode.BadRequest };
@@ -51,7 +50,7 @@ namespace Vax.Service.Implmentation
 
 		public async Task<BaseResult<IReadOnlyList<VaccineCenterResponseDto>>> GetAllVaccineCenter()
 		{
-			var VaccineCenter = await _unitOfWork.VaccinesCenter.GetAllAsync();
+			var VaccineCenter = await _unitOfWork.VaccinesCenter.DapperGetAllAsync();
 
 			if (VaccineCenter == null)
 			{

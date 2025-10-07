@@ -22,7 +22,7 @@ namespace VaxManager.Controllers
 			_hubContext = hubContext;
 		}
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("all")]
 
         public async Task<ActionResult<BaseResult<PatientResponseDto>>> GetAllPatients()
@@ -36,7 +36,7 @@ namespace VaxManager.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("all")]
         public async Task<ActionResult<BaseResult<PatientResponseDto>>> GetAllVaccineCenters()
         {

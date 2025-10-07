@@ -37,5 +37,9 @@ namespace Vax.Repository.Interface
 
 		void Delete(T entity);
 		void DeleteRange(IEnumerable<T> entities);
+
+		Task<IEnumerable<T>> DapperGetAllAsync();
+
+		IEnumerable<T> DapperGetAll();
 	}
 }
