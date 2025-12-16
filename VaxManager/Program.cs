@@ -38,6 +38,7 @@ namespace VaxManager
 			builder.Services.Configure<MailSettingsOptions>(builder.Configuration.GetSection("MailSettings"));
 			builder.Services.Configure<TwilioOption>(builder.Configuration.GetSection("Twilio"));
 
+			builder.Services.AddHealthChecks().AddDbContextCheck<Vaxdbcontext>();
 			builder.Services.AddDbContext<Vaxdbcontext>(option =>
 			{
 				option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
