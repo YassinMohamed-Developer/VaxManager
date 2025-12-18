@@ -1,5 +1,7 @@
 
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -75,6 +77,11 @@ namespace VaxManager
 			app.UseCors("default");
 
 			app.MapControllers();
+
+			app.UseHealthChecks("/api/Health/CheckDatabaseHealth", new HealthCheckOptions
+			{
+				ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+			});
 
 			app.MapHub<NotificationHub>("/NotificationHub");
 			app.Run();
