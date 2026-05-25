@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.SemanticKernel;
 using System.Text;
 using Vax.Data.Context;
 using Vax.Data.Entity;
@@ -35,6 +36,17 @@ namespace VaxManager
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+			builder.Services.AddMemoryCache();
+
+			builder.Services.AddSingleton<Kernel>(sp =>
+			{
+				return Kernel.CreateBuilder()
+					.AddOpenAIChatCompletion(
+						modelId: "mistral-medium",
+						endpoint: new Uri("https://api.mistral.ai/v1"),
+						apiKey: builder.Configuration["Mistral:ApiKey"])
+					.Build();
+			});
 
 			builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("Token"));
 			builder.Services.Configure<MailSettingsOptions>(builder.Configuration.GetSection("MailSettings"));
@@ -63,11 +75,11 @@ namespace VaxManager
 			await ApplySeeding.ApplySeedingAsync(app);
 			app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 			// Configure the HTTP request pipeline.
-			if (app.Environment.IsDevelopment())
-			{
+			//if (app.Environment.IsDevelopment())
+			//{
 				app.UseSwagger();
 				app.UseSwaggerUI();
-			}
+			//}
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 			app.UseRouting();
