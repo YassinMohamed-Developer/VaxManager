@@ -2,7 +2,6 @@
 using Vax.Data.Entity;
 using Vax.Repository.Implmentation;
 using Vax.Repository.Interface;
-using Vax.Service.BackGroundJobs;
 using Vax.Service.Helper;
 using Vax.Service.Implmentation;
 using Vax.Service.Interface;
@@ -19,18 +18,16 @@ namespace VaxManager.Extension
 			service.AddScoped<ITokenService, TokenService>();
 			service.AddScoped<IAuthService, AuthService>();
 			service.AddScoped<IAdminService, AdminService>();
+			service.AddScoped<IPatientService, PatientService>();
 			service.AddScoped<IVaccineCenterService, VaccineCenterService>();
 			service.AddScoped<IEmailService, EmailService>();
 			service.AddScoped<ISmsService, SmsService>();
-			service.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
-			service.AddHostedService<UserRegisteredConsumer>();
 
-
-			service.AddAutoMapper(cfg => {
-			}, typeof(AdminProfile).Assembly,typeof(PatientProfile).Assembly,
-				typeof(VaccineCenterProfile).Assembly,
-				typeof(VaccineProfile).Assembly,
-				typeof(ReservationProfile).Assembly);
+			service.AddAutoMapper(typeof(AdminProfile));
+			service.AddAutoMapper(typeof(PatientProfile));
+			service.AddAutoMapper(typeof(VaccineCenterProfile));
+			service.AddAutoMapper(typeof(Vaccine));
+			service.AddAutoMapper(typeof(ReservationProfile));
 
 			service.Configure<ApiBehaviorOptions>(option =>
 			{

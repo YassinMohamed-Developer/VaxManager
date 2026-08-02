@@ -1,11 +1,6 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Vax.Service.CQRS.Feature.Vaccine.Query;
-using Vax.Service.CQRS.Feature.Vaccine.Query;
-using Vax.Service.CQRS.Feature.VaccineCenter.Command;
-using Vax.Service.CQRS.Feature.VaccineCenter.Query;
 using Vax.Service.DTOS.RequestDto;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
@@ -18,12 +13,10 @@ namespace VaxManager.Controllers
 	public class VaccineCenterController : ControllerBase
 	{
 		private readonly IVaccineCenterService _service;
-		private readonly IMediator _mediator;
 
-		public VaccineCenterController(IVaccineCenterService service,IMediator mediator)
+		public VaccineCenterController(IVaccineCenterService service)
         {
 			_service = service;
-			_mediator = mediator;
 		}
 
 		[Authorize(Roles = "VaccineCenter")]
@@ -72,7 +65,7 @@ namespace VaxManager.Controllers
 		[HttpGet("all")]
 		public async Task<ActionResult<BaseResult<IReadOnlyList<VaccineResponseDto>>>> GetAllVaccine()
 		{
-			var result  = await _mediator.Send(new GetAllVaccineQuery());
+			var result = await _service.GetAllVaccines();
 			if (!result.IsSuccess)
 			{
 				return BadRequest(result);
@@ -82,7 +75,7 @@ namespace VaxManager.Controllers
 		[HttpGet]
 		public async Task<ActionResult<BaseResult<VaccineResponseDto>>> GetVaccineById(int vaccineId)
 		{
-			var result = await _mediator.Send(new GetVaccineByIdQuery(vaccineId));
+			var result = await _service.GetVaccineById(vaccineId);
 			if (!result.IsSuccess)
 			{
 				return BadRequest(result);
@@ -124,7 +117,7 @@ namespace VaxManager.Controllers
 		[HttpDelete("{VaccineId}")]
 		public async Task<ActionResult<BaseResult<string>>> DeleteProfile(int VaccineId)
 		{
-			var result = await _mediator.Send(new DeleteProfileCommand(VaccineId));
+			var result = await _service.DeleteProfile(VaccineId);
 			if (!result.IsSuccess)
 			{
 				return BadRequest(result);
