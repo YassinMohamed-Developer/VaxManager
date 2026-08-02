@@ -28,7 +28,7 @@ namespace VaxManager
 		public static async Task Main(string[] args)
 		{
 			#region Configure Service
-			var builder = WebApplication.CreateBuilder(args)
+			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container
 
