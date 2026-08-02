@@ -1,6 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Vax.Service.CQRS.Feature.Patients.Command;
+using Vax.Service.CQRS.Feature.Patients.Query;
+using Vax.Service.CQRS.Feature.Reservation.Command;
+using Vax.Service.CQRS.Feature.Reservation.Query;
+using Vax.Service.CQRS.Feature.VaccineCenter.Query;
 using Vax.Service.DTOS.RequestDto;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
@@ -12,18 +18,18 @@ namespace VaxManager.Controllers
 	[ApiController]
 	public class PatientController : ControllerBase
 	{
-		private readonly IPatientService _patientService;
+		private readonly IMediator _mediator;
 
-		public PatientController(IPatientService patientService)
+		public PatientController(IMediator mediator)
         {
-			_patientService = patientService;
+			_mediator = mediator;
 		}
 
-		[Authorize(Roles = "Patient")]
+		//[Authorize(Roles = "Patient")]
 		[HttpGet("{PatientId}")]
 		public async Task<ActionResult<BaseResult<PatientResponseDto>>> GetPatient(int PatientId)
 		{
-			var result = await _patientService.GetPatientAsync(PatientId);
+			var result = await _mediator.Send(new GetPatientByIdQuery(PatientId));
 			if (!result.IsSuccess)
 			{
 				return BadRequest(result);
@@ -38,7 +44,7 @@ namespace VaxManager.Controllers
 		{
 			var UserId = User.FindFirst("UserId").Value;
 
-			var result = await _patientService.CompleteProfileAsync(input, UserId);
+			var result = await _mediator.Send(new CompleteProfileCommand(input, UserId));
 
 			if (!result.IsSuccess)
 			{
@@ -53,7 +59,7 @@ namespace VaxManager.Controllers
 		{
 			var UserId = User.FindFirst("UserId").Value;
 
-			var result = await _patientService.UpdatePatientProfile(input, UserId);
+			var result = await _mediator.Send(new UpdatePatientProfileCommand(input, UserId));
 
 			if (!result.IsSuccess)
 			{
@@ -65,7 +71,7 @@ namespace VaxManager.Controllers
 		[HttpDelete("{PatientId}")]
 		public async Task<ActionResult<BaseResult<string>>> DeleteProfile(int PatientId)
 		{
-			var result = await _patientService.DeleteProfile(PatientId);
+			var result = await _mediator.Send(new DeleteProfilePatientCommand(PatientId));
 
 			if (!result.IsSuccess)
 			{
@@ -80,7 +86,7 @@ namespace VaxManager.Controllers
 		{
 			var AppUser = User.FindFirst("UserId").Value;
 
-			var result = await _patientService.PatientReservation(requestDto,AppUser);
+			var result = await _mediator.Send(new PatientReservationCommand(requestDto, AppUser));
 
 			if (!result.IsSuccess)
 			{
@@ -93,7 +99,7 @@ namespace VaxManager.Controllers
 		[HttpGet("all")]
 		public async Task<ActionResult<BaseResult<IReadOnlyList<ReservationResponseDto>>>> GetAllReservation()
 		{
-			var Result = await _patientService.GetAllReservation();
+			var Result = await _mediator.Send(new GetAllReservationQuery());
 
 			if (!Result.IsSuccess)
 			{
@@ -105,7 +111,7 @@ namespace VaxManager.Controllers
 		[HttpGet("{ReserveId}")]
 		public async Task<ActionResult<BaseResult<ReservationResponseDto>>> GetReservationById(int ReserveId)
 		{
-			var Result = await _patientService.GetReservationById(ReserveId);
+			var Result = await _mediator.Send(new GetReservationByIdQuery(ReserveId));
 
 			if (!Result.IsSuccess)
 			{
@@ -118,7 +124,7 @@ namespace VaxManager.Controllers
 		[HttpDelete("{ReserveId}")]
 		public async Task<ActionResult<BaseResult<string>>> CancelReservation(int ReserveId)
 		{
-			var Result = await _patientService.CancelReservation(ReserveId);
+			var Result = await _mediator.Send(new CancelReservationCommand(ReserveId));
 
 			if (!Result.IsSuccess)
 			{
@@ -130,7 +136,7 @@ namespace VaxManager.Controllers
 		[HttpGet("{VaccineCenterId}")]
 		public async Task<ActionResult<BaseResult<VaccineCenterWithVaccinesResponseDto>>> GetVaccineCenterwithVaccines(int VaccineCenterId)
 		{
-			var Result = await _patientService.GetVaccineCenterWithVaccines(VaccineCenterId);
+			var Result = await _mediator.Send(new GetVaccineCenterWithVaccinesQuery(VaccineCenterId));
 
 			if (!Result.IsSuccess)
 			{

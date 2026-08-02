@@ -12,29 +12,25 @@ namespace Vax.Service.Interface
 {
 	public interface IVaccineCenterService
 	{
+		//Command 
 		public Task<BaseResult<string>> CompleteProfileAsync(VaccineCenterRequestDto vaccineCenterRequest, string appuserid);
 
+		//Command
 		public Task<BaseResult<string>> UpdateVaccineCenterProfile(VaccineCenterRequestDto vaccineCenterRequest, string appuserid);
 
-		public Task<BaseResult<string>> DeleteProfile(int VaccineId);
-
+		//Command
 		public Task<BaseResult<string>> CreateVaccine(VaccineRequestDto vaccine, string appuserid);
 
-		public Task<BaseResult<IReadOnlyList<VaccineResponseDto>>> GetAllVaccines();
-
-
-		public Task<BaseResult<VaccineResponseDto>> GetVaccineById(int Id);
-
-
+		//Command
 		public Task<BaseResult<string>> UpdateVaccine(VaccineRequestDto vaccine, int vaccineId, string appuserid);
-
+		//Command
 
 		public Task<BaseResult<string>> DeleteVaccine(int Id);
-
+		//Command
 		public Task<BaseResult<string>> ApproveReservationById(int Id,string appuserid);
-
+		//Command
 		public Task<BaseResult<string>> RejectReservationById(int Id, string appuserid);
-
+		//Query
 		public Task<BaseResult<IReadOnlyList<PatientsWithVaccines>>> GetPatientsWithVaccines(string appuserid);
 	}
 }

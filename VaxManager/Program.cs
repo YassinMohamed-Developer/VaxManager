@@ -1,4 +1,5 @@
 
+using Hangfire;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -13,6 +14,9 @@ using Vax.Data.Context;
 using Vax.Data.Entity;
 using Vax.Repository.Implmentation;
 using Vax.Repository.Interface;
+using Vax.Service.BackGroundJobs;
+using Vax.Service.CQRS.Feature.Patients.Command;
+using Vax.Service.CQRS.Feature.Patients.Query;
 using Vax.Service.Helper;
 using Vax.Service.Implmentation;
 using Vax.Service.Interface;
@@ -27,7 +31,7 @@ namespace VaxManager
 		public static async Task Main(string[] args)
 		{
 			#region Configure Service
-			var builder = WebApplication.CreateBuilder(args);
+			var builder = WebApplication.CreateBuilder(args)
 
 			// Add services to the container
 
@@ -46,6 +50,8 @@ namespace VaxManager
 				option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 			});
 			builder.Services.AddSignalR();
+			builder.Services.AddMediatR(cfg =>
+			cfg.RegisterServicesFromAssembly(typeof(CompleteProfileCommand).Assembly));
 			builder.Services.AddCors(o =>
 			{
 				o.AddPolicy("default", x =>
@@ -56,10 +62,28 @@ namespace VaxManager
 			builder.Services.RegisterService();
 			builder.Services.IdentityService(builder.Configuration);
 			builder.Services.SwaggerService();
+			builder.Services.AddScoped<VaccinationReminderJob>();
+			builder.Services.AddScoped<IBackgroundJobClient, BackgroundJobClient>();
 
-			#endregion 
+			builder.Services.AddHangfire(config => 
+			config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+			builder.Services.AddHangfireServer();
+
+	
+
+			#endregion
 
 			var app = builder.Build();
+
+			app.UseHangfireDashboard("/hangfire");
+
+			RecurringJob.AddOrUpdate<VaccinationReminderJob>
+			(
+				"VaccinationReminderJob",
+				job => job.SendRemindersAsync(),
+				Cron.Daily
+			);
 			await ApplySeeding.ApplySeedingAsync(app);
 			app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 			// Configure the HTTP request pipeline.

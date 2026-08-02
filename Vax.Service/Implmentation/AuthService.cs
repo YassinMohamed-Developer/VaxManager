@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging;
 using Google.Apis.Auth;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -28,18 +29,23 @@ namespace Vax.Service.Implmentation
 		private readonly ITokenService _tokenService;
 		private readonly IEmailService _emailService;
 		private readonly IConfiguration _configuration;
+		private readonly IBackgroundJobClient _backgroundJobClient;
+		private readonly IRabbitMqPublisher _rabbitMqPublisher;
 
 		public AuthService(SignInManager<AppUser> signInManager
 			, UserManager<AppUser> userManager
 			,ITokenService tokenService,
 			IEmailService emailService,
-			IConfiguration configuration)
+			IConfiguration configuration,
+			IBackgroundJobClient backgroundJobClient,IRabbitMqPublisher rabbitMqPublisher)
         {
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_tokenService = tokenService;
 			_emailService = emailService;
 			_configuration = configuration;
+			_backgroundJobClient = backgroundJobClient;
+			_rabbitMqPublisher = rabbitMqPublisher;
 		}
 
 
@@ -107,8 +113,61 @@ namespace Vax.Service.Implmentation
 			if (result.Succeeded)
 			{
 				var roleresult = await _userManager.AddToRoleAsync(appuser, accountype);
+
+				#region SendEmail BackGround Job
+				//		_backgroundJobClient.Enqueue<EmailService>(x => x.SendEmail(
+				//new EmailDto
+				//{
+				//	To = registerDto.Email,
+				//	Subject = "Registration Successfully",
+				//	Body = $@"<html>
+
+				//						<p>Dear {registerDto.UserName},</p>
+
+				//						<p>We are pleased to inform you that your registration was completed successfully.</p>
+
+				//						<p>Your account has been created and you can now access all available features and services.</p>
+
+				//						<p>We are excited to have you with us and look forward to providing you with the best experience possible.</p>
+
+				//						<p>If you have any questions or need assistance, feel free to contact our support team at any time.</p>
+
+				//						<p>Best regards,<br>The Support Team</p>
+
+				//					</html>"
+				//}
+				//)); 
+				#endregion
+
+
+						await _rabbitMqPublisher.PublishAsync(
+					new UserRegisteredEvent
+					{
+						UserId = appuser.Id,
+						Email = appuser.Email,
+						FullName = appuser.UserName
+					});
+
 				return new BaseResult<string> { Data = appuser.Id.ToString(), IsSuccess = true, Message = "Register Successfully." };
 			}
+			#region Send Email BackGround Job
+			_backgroundJobClient.Enqueue<EmailService>(x => x.SendEmail(
+		new EmailDto
+		{
+			To = registerDto.Email,
+			Subject = "Registration Failed",
+			Body = $@"<html>
+
+								<p>Dear {registerDto.UserName},</p>
+								<p>We regret to inform you that your registration attempt was unsuccessful.</p>
+								<p>Please review the following errors and try again:</p>
+								<p>{string.Join("<br>", result.Errors.Select(e => e.Description))}</p>
+								<p>If you continue to experience issues, please contact our support team for assistance.</p>
+								<p>Best regards,<br>The Support Team</p>
+							</html>"
+		}
+	)); 
+			#endregion
 
 			throw new CustomException($"{result}") { StatusCode = (int)HttpStatusCode.InternalServerError };
 		}
