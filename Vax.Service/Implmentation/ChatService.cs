@@ -6,10 +6,12 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using Vax.Data.Context;
 using Vax.Data.Entity;
 using Vax.Service.DTOS.RequestDto;
+using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
 using Vax.Service.Interface;
 
@@ -21,20 +23,35 @@ namespace Vax.Service.Implmentation
 		private readonly Kernel _kernel;
 		private readonly UserManager<AppUser> _userManager;
 		private readonly Vaxdbcontext _vaxdbcontext;
+		private readonly IEmailService _emailService;
+		private readonly VaxPlugin _vaxPlugin;
 		private readonly IChatCompletionService _chatService;
 
-		public ChatService(IMemoryCache cache,Kernel kernel,UserManager<AppUser> userManager,Vaxdbcontext vaxdbcontext)
+		public ChatService(IMemoryCache cache, Kernel kernel,
+			UserManager<AppUser> userManager,
+			Vaxdbcontext vaxdbcontext,
+			IEmailService emailService,VaxPlugin vaxPlugin)
 		{
 			_cache = cache;
 			_kernel = kernel;
 			_userManager = userManager;
 			_vaxdbcontext = vaxdbcontext;
+			_emailService = emailService;
+			_vaxPlugin = vaxPlugin;
 			_chatService = kernel.GetRequiredService<IChatCompletionService>();
+
 		}
-		public async Task<BaseResult<string>> Ask(ChatRequest request,string appuserId)
+		public async Task<BaseResult<string>> Ask(ChatRequest request, string appuserId)
 		{
 			var userId = await _userManager.FindByIdAsync(appuserId);
 
+
+			var plugin = _kernel.Plugins.AddFromObject(_vaxPlugin, "VaxPlugin");
+
+			OpenAIPromptExecutionSettings executionSettings = new OpenAIPromptExecutionSettings
+			{
+				FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+			};
 
 			var loadmessages = await _vaxdbcontext.ChatMessages.Where
 				(u => u.UserId == userId.Id)
@@ -66,11 +83,11 @@ namespace Vax.Service.Implmentation
 
 			foreach (var message in loadmessages)
 			{
-				if(message.Role == "user")
+				if (message.Role == "user")
 				{
 					history.AddUserMessage(message.Message);
 				}
-				else if(message.Role == "assistant")
+				else if (message.Role == "assistant")
 				{
 					history.AddAssistantMessage(message.Message);
 				}
@@ -89,7 +106,7 @@ namespace Vax.Service.Implmentation
 			//Get AI Response
 			var result = await _chatService.GetChatMessageContentAsync(
 				history,
-				executionSettings: new OpenAIPromptExecutionSettings(),
+				executionSettings: executionSettings,
 				kernel: _kernel);
 
 			//Save the AI Response in DB
