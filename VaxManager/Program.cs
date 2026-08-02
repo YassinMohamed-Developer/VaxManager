@@ -1,4 +1,5 @@
 
+using Hangfire;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -9,11 +10,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.SemanticKernel;
+using Org.BouncyCastle.Asn1.Cms;
 using System.Text;
+using Twilio.Types;
 using Vax.Data.Context;
 using Vax.Data.Entity;
 using Vax.Repository.Implmentation;
 using Vax.Repository.Interface;
+using Vax.Service.BackGroundJob;
 using Vax.Service.Helper;
 using Vax.Service.Implmentation;
 using Vax.Service.Interface;
@@ -68,8 +72,17 @@ namespace VaxManager
 			builder.Services.RegisterService();
 			builder.Services.IdentityService(builder.Configuration);
 			builder.Services.SwaggerService();
+			builder.Services.AddScoped<DailyEmailMessageJob>();
 
-			#endregion 
+
+				builder.Services.AddHangfire(configuration =>
+			{
+				configuration.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+			});
+			builder.Services.AddHangfireServer();
+
+
+			#endregion
 
 			var app = builder.Build();
 			await ApplySeeding.ApplySeedingAsync(app);
@@ -80,12 +93,21 @@ namespace VaxManager
 				app.UseSwagger();
 				app.UseSwaggerUI();
 			//}
+
+
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 			app.UseRouting();
 			app.UseAuthentication();
 			app.UseAuthorization();
+			app.UseHangfireDashboard("/hangfire");
 
+			RecurringJob.AddOrUpdate<DailyEmailMessageJob>
+				(
+					"DailyEmailMessageJob",
+					(job) => job.SendEmail(),
+					Cron.Daily
+				);
 			app.UseCors("default");
 
 			app.MapControllers();

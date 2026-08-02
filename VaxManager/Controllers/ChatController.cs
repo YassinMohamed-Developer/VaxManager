@@ -20,7 +20,12 @@ namespace VaxManager.Controllers
 		public async Task<IActionResult> Ask([FromBody] ChatRequest request)
 		{
 
-			var UserId = User.FindFirst("UserId").Value;
+			var UserId = User.FindFirst("UserId")?.Value;
+
+			if(UserId == null)
+			{
+				return BadRequest("You Must Be Logged In to Ask Questions");
+			}
 
 			var result = await _chatService.Ask(request, UserId);
 

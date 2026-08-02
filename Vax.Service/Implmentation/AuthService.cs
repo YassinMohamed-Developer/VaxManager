@@ -1,10 +1,12 @@
 ﻿using Azure.Messaging;
 using Google.Apis.Auth;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,18 +30,20 @@ namespace Vax.Service.Implmentation
 		private readonly ITokenService _tokenService;
 		private readonly IEmailService _emailService;
 		private readonly IConfiguration _configuration;
+		private readonly IBackgroundJobClient _backgroundJobClient;
 
 		public AuthService(SignInManager<AppUser> signInManager
 			, UserManager<AppUser> userManager
 			,ITokenService tokenService,
 			IEmailService emailService,
-			IConfiguration configuration)
+			IConfiguration configuration,IBackgroundJobClient backgroundJobClient)
         {
 			_signInManager = signInManager;
 			_userManager = userManager;
 			_tokenService = tokenService;
 			_emailService = emailService;
 			_configuration = configuration;
+			_backgroundJobClient = backgroundJobClient;
 		}
 
 
@@ -109,6 +113,21 @@ namespace Vax.Service.Implmentation
 				var roleresult = await _userManager.AddToRoleAsync(appuser, accountype);
 				return new BaseResult<string> { Data = appuser.Id.ToString(), IsSuccess = true, Message = "Register Successfully." };
 			}
+
+			var emailmessage = new EmailDto
+			{
+				Subject = "Welcome to Vax",
+				Body = $"<h3>Dear {registerDto.UserName},</h3>" +
+				$"<p>Thank you for registering with Vax. We are excited to have you on board!</p>" +
+				$"<p>Your account has been successfully created, and you can now log in using your email address: {registerDto.Email}.</p>" +
+				$"<p>If you have any questions or need assistance, please feel free to reach out to our support team.</p>" +
+				$"<p>Best regards,<br/>The Vax Team</p>",
+
+				To= registerDto.Email,
+			};
+
+			_backgroundJobClient.Enqueue(() => _emailService.SendEmail(emailmessage));
+
 
 			throw new CustomException($"{result}") { StatusCode = (int)HttpStatusCode.InternalServerError };
 		}
