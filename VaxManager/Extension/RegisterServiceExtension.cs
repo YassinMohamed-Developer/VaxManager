@@ -22,12 +22,13 @@ namespace VaxManager.Extension
 			service.AddScoped<IVaccineCenterService, VaccineCenterService>();
 			service.AddScoped<IEmailService, EmailService>();
 			service.AddScoped<ISmsService, SmsService>();
+			service.AddScoped<IChatService, ChatService>();
 
-			service.AddAutoMapper(typeof(AdminProfile));
-			service.AddAutoMapper(typeof(PatientProfile));
-			service.AddAutoMapper(typeof(VaccineCenterProfile));
-			service.AddAutoMapper(typeof(Vaccine));
-			service.AddAutoMapper(typeof(ReservationProfile));
+			service.AddAutoMapper(cfg => {
+			}, typeof(AdminProfile).Assembly, typeof(PatientProfile).Assembly,
+				typeof(VaccineCenterProfile).Assembly,
+				typeof(VaccineProfile).Assembly,
+				typeof(ReservationProfile).Assembly);
 
 			service.Configure<ApiBehaviorOptions>(option =>
 			{

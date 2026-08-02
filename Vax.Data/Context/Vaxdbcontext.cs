@@ -35,5 +35,7 @@ namespace Vax.Data.Context
 		public DbSet<Reservation> Reservations { get; set; }
 
 		public DbSet<Admin> Admins { get; set; }
+
+		public DbSet<ChatMessage> ChatMessages { get; set; }
 	}
 }
