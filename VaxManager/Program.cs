@@ -42,15 +42,7 @@ namespace VaxManager
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddMemoryCache();
 
-			builder.Services.AddSingleton<Kernel>(sp =>
-			{
-				return Kernel.CreateBuilder()
-					.AddOpenAIChatCompletion(
-						modelId: "mistral-medium",
-						endpoint: new Uri("https://api.mistral.ai/v1"),
-						apiKey: builder.Configuration["Mistral:ApiKey"])
-					.Build();
-			});
+
 
 			builder.Services.Configure<TokenOption>(builder.Configuration.GetSection("Token"));
 			builder.Services.Configure<MailSettingsOptions>(builder.Configuration.GetSection("MailSettings"));
@@ -81,8 +73,7 @@ namespace VaxManager
 			});
 			builder.Services.AddHangfireServer();
 
-
-			#endregion
+			#endregion 
 
 			var app = builder.Build();
 			await ApplySeeding.ApplySeedingAsync(app);
