@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.SignalR;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
@@ -24,7 +25,7 @@ namespace VaxManager.Controllers
 
         //[Authorize(Roles = "Admin")]
         [HttpGet("all")]
-
+        [EnableRateLimiting("Token")]
         public async Task<ActionResult<BaseResult<PatientResponseDto>>> GetAllPatients()
         {
             var result = await _adminService.GetAllPatients();
@@ -38,7 +39,8 @@ namespace VaxManager.Controllers
 
         //[Authorize(Roles = "Admin")]
         [HttpGet("all")]
-        public async Task<ActionResult<BaseResult<PatientResponseDto>>> GetAllVaccineCenters()
+		[EnableRateLimiting("Token")]
+		public async Task<ActionResult<BaseResult<PatientResponseDto>>> GetAllVaccineCenters()
         {
             var result = await _adminService.GetAllVaccineCenter();
             if (!result.IsSuccess)

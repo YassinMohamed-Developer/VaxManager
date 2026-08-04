@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.SemanticKernel;
 using Org.BouncyCastle.Asn1.Cms;
 using System.Text;
+using System.Threading.RateLimiting;
 using Twilio.Types;
 using Vax.Data.Context;
 using Vax.Data.Entity;
@@ -68,10 +70,50 @@ namespace VaxManager
 
 
 				builder.Services.AddHangfire(configuration =>
-			{
-				configuration.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
-			});
+				{
+					configuration.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+				});
 			builder.Services.AddHangfireServer();
+
+			builder.Services.AddRateLimiter(options =>
+			{
+				options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+				options.AddFixedWindowLimiter("Fixed", x =>
+				{
+					x.PermitLimit = 10;
+					x.Window = TimeSpan.FromSeconds(20);
+					x.QueueLimit = 0;
+					x.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+				});
+
+			});
+
+			builder.Services.AddRateLimiter(options =>
+			{
+				options.AddTokenBucketLimiter("Token", x =>
+				{
+					x.TokenLimit = 10;
+					x.ReplenishmentPeriod = TimeSpan.FromSeconds(10);
+					x.TokensPerPeriod = 2;
+				});
+				options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+			});
+
+			builder.Services.AddRateLimiter(options =>
+			{
+
+				options.AddPolicy("fixedIpAddress", httpContext =>
+				RateLimitPartition.GetFixedWindowLimiter(partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+				factory:_ => new FixedWindowRateLimiterOptions
+				{
+					PermitLimit = 10,
+					Window = TimeSpan.FromSeconds(10),
+					QueueLimit = 0,
+					QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+				}));
+				options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+			});
 
 			#endregion 
 
@@ -92,12 +134,13 @@ namespace VaxManager
 			app.UseAuthentication();
 			app.UseAuthorization();
 			app.UseHangfireDashboard("/hangfire");
+			app.UseRateLimiter();
 
 			RecurringJob.AddOrUpdate<DailyEmailMessageJob>
 				(
 					"DailyEmailMessageJob",
 					(job) => job.SendEmail(),
-					Cron.Daily
+					Cron.Never
 				);
 			app.UseCors("default");
 
