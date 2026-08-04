@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Vax.Service.DTOS.RequestDto;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
@@ -19,7 +20,7 @@ namespace VaxManager.Controllers
 		}
 
 		[HttpPost]
-
+		[EnableRateLimiting("Fixed")]
 		public async Task<ActionResult<BaseResult<TokenDto>>> LoginAsync(LoginDto loginDto)
 		{
 			var result = await _authService.LoginAsync(loginDto);

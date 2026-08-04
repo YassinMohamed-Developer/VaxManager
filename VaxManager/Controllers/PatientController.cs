@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Vax.Service.DTOS.RequestDto;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
@@ -8,6 +9,7 @@ using Vax.Service.Interface;
 
 namespace VaxManager.Controllers
 {
+	[EnableRateLimiting("fixedIpAddress")]
 	[Route("api/[controller]/[action]")]
 	[ApiController]
 	public class PatientController : ControllerBase
