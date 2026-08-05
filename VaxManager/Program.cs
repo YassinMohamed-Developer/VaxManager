@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.SemanticKernel;
 using Org.BouncyCastle.Asn1.Cms;
+using Serilog;
+using Serilog.Events;
 using System.Text;
 using System.Threading.RateLimiting;
 using Twilio.Types;
@@ -66,7 +68,7 @@ namespace VaxManager
 			builder.Services.RegisterService();
 			builder.Services.IdentityService(builder.Configuration);
 			builder.Services.SwaggerService();
-			builder.Services.AddScoped<DailyEmailMessageJob>();
+			//builder.Services.AddScoped<DailyEmailMessageJob>();
 
 
 				builder.Services.AddHangfire(configuration =>
@@ -115,7 +117,20 @@ namespace VaxManager
 				options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 			});
 
-			#endregion 
+
+			Log.Logger = new LoggerConfiguration()
+				.MinimumLevel.Information()
+				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+				.MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+				.MinimumLevel.Override("Hangfire", LogEventLevel.Warning)
+				.WriteTo.MongoDB(builder.Configuration.GetConnectionString("MongoDBConnection"), "Logs")
+				.WriteTo.Console()
+				.CreateLogger();
+
+			builder.Host.UseSerilog();
+
+
+			#endregion
 
 			var app = builder.Build();
 			await ApplySeeding.ApplySeedingAsync(app);
@@ -136,12 +151,12 @@ namespace VaxManager
 			app.UseHangfireDashboard("/hangfire");
 			app.UseRateLimiter();
 
-			RecurringJob.AddOrUpdate<DailyEmailMessageJob>
-				(
-					"DailyEmailMessageJob",
-					(job) => job.SendEmail(),
-					Cron.Never
-				);
+			//RecurringJob.AddOrUpdate<DailyEmailMessageJob>
+			//	(
+			//		"DailyEmailMessageJob",
+			//		(job) => job.SendEmail(),
+			//		Cron.Never
+			//	);
 			app.UseCors("default");
 
 			app.MapControllers();

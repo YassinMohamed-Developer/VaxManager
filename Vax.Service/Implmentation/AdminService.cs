@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +19,13 @@ namespace Vax.Service.Implmentation
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
+		private readonly ILogger<AdminService> _logger;
 
-		public AdminService(IUnitOfWork unitOfWork,IMapper mapper)
+		public AdminService(IUnitOfWork unitOfWork,IMapper mapper,ILogger<AdminService> logger)
         {
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
+			_logger = logger;
 		}
         public async Task<BaseResult<AdminResponseDto>> GetAdminById(int id)
 		{
@@ -45,6 +50,8 @@ namespace Vax.Service.Implmentation
 
 			var PatientMap = _mapper.Map<IReadOnlyList<PatientResponseDto>>(Patient);
 
+
+			_logger.Log(LogLevel.Warning, "GetAllPatients method called in AdminService");
 			return new BaseResult<IReadOnlyList<PatientResponseDto>> { Data = PatientMap, Message = "Data Retrieve Successfully " };
 		}
 

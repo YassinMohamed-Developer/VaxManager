@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,12 +33,15 @@ namespace Vax.Service.Implmentation
 		private readonly IEmailService _emailService;
 		private readonly IConfiguration _configuration;
 		private readonly IBackgroundJobClient _backgroundJobClient;
+		private readonly ILogger<AuthService> _logger;
 
 		public AuthService(SignInManager<AppUser> signInManager
 			, UserManager<AppUser> userManager
 			,ITokenService tokenService,
 			IEmailService emailService,
-			IConfiguration configuration,IBackgroundJobClient backgroundJobClient)
+			IConfiguration configuration,
+			IBackgroundJobClient backgroundJobClient,
+			ILogger<AuthService> logger)
         {
 			_signInManager = signInManager;
 			_userManager = userManager;
@@ -44,6 +49,7 @@ namespace Vax.Service.Implmentation
 			_emailService = emailService;
 			_configuration = configuration;
 			_backgroundJobClient = backgroundJobClient;
+			_logger = logger;
 		}
 
 
@@ -53,12 +59,14 @@ namespace Vax.Service.Implmentation
 
 			if(email == null)
 			{
+				_logger.LogError("Invalid email provided: {Email}", loginDto.Email);
 				throw new CustomException($"Email: {loginDto.Email} Not Valid") { StatusCode = (int)HttpStatusCode.BadRequest};
 			}
 			var signin = await _signInManager.CheckPasswordSignInAsync(email, loginDto.Password,false);
 
 			if(signin == null)
 			{
+				_logger.LogError("Invalid credentials provided for email: {Email}", loginDto.Email);
 				throw new CustomException($"Invalid Credentials for {loginDto.Email}") {StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
@@ -90,13 +98,14 @@ namespace Vax.Service.Implmentation
 
 			if (email is not null)
 			{
-				throw new CustomException($"Email {registerDto.Email} is Already Exist") {StatusCode = (int)HttpStatusCode.BadRequest };
+				_logger.LogError("Email {Email} is already in use.", registerDto.Email);
+				return new BaseResult<string>($"Email {registerDto.Email} is Already Exist") {StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var username = await _userManager.FindByNameAsync(registerDto.UserName);
 			if(username is not null)
 			{
-				throw new CustomException($"UserName {registerDto.UserName} is Already Exist");
+				return new BaseResult<string>($"UserName {registerDto.UserName} is Already Exist") {StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var appuser = new AppUser
@@ -111,6 +120,7 @@ namespace Vax.Service.Implmentation
 			if (result.Succeeded)
 			{
 				var roleresult = await _userManager.AddToRoleAsync(appuser, accountype);
+				_logger.LogInformation("User {UserName} registered successfully with role {Role}.", appuser.UserName, accountype);
 				return new BaseResult<string> { Data = appuser.Id.ToString(), IsSuccess = true, Message = "Register Successfully." };
 			}
 
@@ -128,8 +138,8 @@ namespace Vax.Service.Implmentation
 
 			_backgroundJobClient.Enqueue(() => _emailService.SendEmail(emailmessage));
 
-
-			throw new CustomException($"{result}") { StatusCode = (int)HttpStatusCode.InternalServerError };
+			_logger.LogError("User registration failed for {UserName}. Errors: {Errors}", registerDto.UserName, string.Join(", ", result.Errors.Select(e => e.Description)));
+			return new  BaseResult<string> ($"{result}") { StatusCode = (int)HttpStatusCode.InternalServerError };
 		}
 
 		public async Task<BaseResult<string>> ResetPassword(ResetPasswordDto resetPasswordDto)

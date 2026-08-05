@@ -14,5 +14,16 @@ namespace Vax.Service.Helper
 		public T Data { get; set; }
 
 		public List<string> Errors { get; set; }
+
+		public int StatusCode { get; set; }
+
+		public BaseResult()
+		{
+			
+		}
+		public BaseResult(string message)
+		{
+			Message = message;
+		}
 	}
 }
