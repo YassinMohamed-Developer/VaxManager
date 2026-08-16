@@ -5,15 +5,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.SemanticKernel;
 using Org.BouncyCastle.Asn1.Cms;
 using Serilog;
 using Serilog.Events;
+using System.Globalization;
 using System.Text;
 using System.Threading.RateLimiting;
 using Twilio.Types;
@@ -130,9 +133,22 @@ namespace VaxManager
 			builder.Host.UseSerilog();
 
 
+			builder.Services.AddLocalization();
+
+
 			#endregion
 
+
 			var app = builder.Build();
+
+			var supportedCultureCodes = new[] { "en", "ar" };
+			var localizationOptions = new RequestLocalizationOptions()
+				.SetDefaultCulture(supportedCultureCodes[0])
+				.AddSupportedCultures(supportedCultureCodes)
+				.AddSupportedUICultures(supportedCultureCodes);
+			localizationOptions.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
+			app.UseRequestLocalization(localizationOptions);
+
 			await ApplySeeding.ApplySeedingAsync(app);
 			app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 			// Configure the HTTP request pipeline.

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -22,6 +23,7 @@ using Vax.Service.DTOS.RequestDto;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
 using Vax.Service.Interface;
+using Vax.Service.Shared;
 
 namespace Vax.Service.Implmentation
 {
@@ -34,6 +36,7 @@ namespace Vax.Service.Implmentation
 		private readonly IConfiguration _configuration;
 		private readonly IBackgroundJobClient _backgroundJobClient;
 		private readonly ILogger<AuthService> _logger;
+		private readonly ILocalizationService _localization;
 
 		public AuthService(SignInManager<AppUser> signInManager
 			, UserManager<AppUser> userManager
@@ -41,7 +44,8 @@ namespace Vax.Service.Implmentation
 			IEmailService emailService,
 			IConfiguration configuration,
 			IBackgroundJobClient backgroundJobClient,
-			ILogger<AuthService> logger)
+			ILogger<AuthService> logger,
+			ILocalizationService localization)
         {
 			_signInManager = signInManager;
 			_userManager = userManager;
@@ -50,6 +54,7 @@ namespace Vax.Service.Implmentation
 			_configuration = configuration;
 			_backgroundJobClient = backgroundJobClient;
 			_logger = logger;
+			_localization = localization;
 		}
 
 
@@ -60,14 +65,15 @@ namespace Vax.Service.Implmentation
 			if(email == null)
 			{
 				_logger.LogError("Invalid email provided: {Email}", loginDto.Email);
-				throw new CustomException($"Email: {loginDto.Email} Not Valid") { StatusCode = (int)HttpStatusCode.BadRequest};
+
+				throw new CustomException(_localization.Get(ValidationError.AuthError.InvalidEmail)) { StatusCode = (int)HttpStatusCode.BadRequest};
 			}
 			var signin = await _signInManager.CheckPasswordSignInAsync(email, loginDto.Password,false);
 
 			if(signin == null)
 			{
 				_logger.LogError("Invalid credentials provided for email: {Email}", loginDto.Email);
-				throw new CustomException($"Invalid Credentials for {loginDto.Email}") {StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.AuthError.InvalidCredentials)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var MakeToken = new TokenDto
@@ -87,7 +93,8 @@ namespace Vax.Service.Implmentation
 
 			//_smsService.Send(Message);
 
-			return new BaseResult<TokenDto> { Data = MakeToken,Message = "Login Successfully." };
+
+			return new BaseResult<TokenDto> { Data = MakeToken,Message = _localization.Get(ValidationError.AuthError.LoginSucceeded) };
 		}
 
 
@@ -99,13 +106,13 @@ namespace Vax.Service.Implmentation
 			if (email is not null)
 			{
 				_logger.LogError("Email {Email} is already in use.", registerDto.Email);
-				return new BaseResult<string>($"Email {registerDto.Email} is Already Exist") {StatusCode = (int)HttpStatusCode.BadRequest };
+				return new BaseResult<string>($"{_localization.Get(ValidationError.AuthError.EmailAlreadyExists)}:{registerDto.Email}") {StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var username = await _userManager.FindByNameAsync(registerDto.UserName);
 			if(username is not null)
 			{
-				return new BaseResult<string>($"UserName {registerDto.UserName} is Already Exist") {StatusCode = (int)HttpStatusCode.BadRequest };
+				return new BaseResult<string>($"{_localization.Get(ValidationError.AuthError.UserNameAlreadyExists)}:{registerDto.UserName}") {StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var appuser = new AppUser
@@ -120,8 +127,8 @@ namespace Vax.Service.Implmentation
 			if (result.Succeeded)
 			{
 				var roleresult = await _userManager.AddToRoleAsync(appuser, accountype);
-				_logger.LogInformation("User {UserName} registered successfully with role {Role}.", appuser.UserName, accountype);
-				return new BaseResult<string> { Data = appuser.Id.ToString(), IsSuccess = true, Message = "Register Successfully." };
+				_logger.LogInformation($"User {appuser.UserName} registered successfully with role {accountype}.");
+				return new BaseResult<string> { Data = appuser.Id.ToString(), IsSuccess = true, Message = _localization.Get(ValidationError.AuthError.RegistrationSucceeded) };
 			}
 
 			var emailmessage = new EmailDto
@@ -148,17 +155,17 @@ namespace Vax.Service.Implmentation
 
 			if (user is null)
 			{
-				throw new CustomException("This Email is Invalid") { StatusCode = (int)HttpStatusCode.BadRequest };
+				return new BaseResult<string>($"{_localization.Get(ValidationError.AuthError.InvalidEmail)}:{resetPasswordDto.Email}") { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var result = await _userManager.ResetPasswordAsync(user,resetPasswordDto.token!,resetPasswordDto.Password);
 
 			if (!result.Succeeded)
 			{
-				throw new CustomException("The Operation not Complete") { StatusCode = (int)HttpStatusCode.BadRequest };
+				return new BaseResult<string>($"{_localization.Get(ValidationError.AuthError.PasswordResetFailed)}") { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
-			return new BaseResult<string> { IsSuccess = true, Message = "Your Password is Changed" };
+			return new BaseResult<string> { IsSuccess = true, Message = _localization.Get(ValidationError.AuthError.PasswordChanged) };
 		}
 		public async Task<BaseResult<string>> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
 		{
@@ -166,7 +173,7 @@ namespace Vax.Service.Implmentation
 
 			if (user is  null)
 			{
-				throw new CustomException("This Email is Invalid") { StatusCode = (int)HttpStatusCode.BadRequest };
+				return new BaseResult<string>($"{_localization.Get(ValidationError.AuthError.InvalidEmail)}:{forgotPasswordDto.Email}") { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -199,7 +206,7 @@ namespace Vax.Service.Implmentation
 
 			 _emailService.SendEmail(message);
 
-			return new BaseResult<string> { IsSuccess = true, Message = "Check Your Mail Please" };
+			return new BaseResult<string> { IsSuccess = true, Message = _localization.Get(ValidationError.AuthError.CheckYourEmail) };
 		}
 		public async Task<BaseResult<TokenDto>> GoogleSigninAsync(string token)
 		{
@@ -223,7 +230,7 @@ namespace Vax.Service.Implmentation
 
 					if (!result.Succeeded)
 					{
-						throw new CustomException("Failed To Create User") { StatusCode = (int)HttpStatusCode.BadRequest };
+						throw new CustomException($"{ValidationError.AuthError.FailedToCreateUser}") { StatusCode = (int)HttpStatusCode.BadRequest };
 					}
 				}
 

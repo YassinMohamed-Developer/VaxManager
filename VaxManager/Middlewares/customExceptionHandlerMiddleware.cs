@@ -29,6 +29,7 @@ namespace  VaxManager.Middlewares
 				{
 					case CustomException e:
 						// custom application error
+						responseModel.StatusCode = e.StatusCode;
 						response.StatusCode = e.StatusCode;
 						break;
 					default:

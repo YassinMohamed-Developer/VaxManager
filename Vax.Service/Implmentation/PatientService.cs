@@ -13,6 +13,7 @@ using Vax.Service.DTOS.RequestDto;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
 using Vax.Service.Interface;
+using Vax.Service.Shared;
 
 namespace Vax.Service.Implmentation
 {
@@ -21,12 +22,14 @@ namespace Vax.Service.Implmentation
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
 		private readonly UserManager<AppUser> _userManager;
+		private readonly ILocalizationService _localization;
 
-		public PatientService(IUnitOfWork unitOfWork,IMapper mapper,UserManager<AppUser> userManager)
-        {
+		public PatientService(IUnitOfWork unitOfWork,IMapper mapper,UserManager<AppUser> userManager,ILocalizationService localization)
+		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_userManager = userManager;
+			_localization = localization;
 		}
 
 		public async Task<BaseResult<string>> CancelReservation(int Id)
@@ -35,13 +38,13 @@ namespace Vax.Service.Implmentation
 
 			if(Reservation == null)
 			{
-				throw new CustomException("No Patient is Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.NoPatientFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			_unitOfWork.Reservations.Delete(Reservation);
 			_unitOfWork.Complete();
 
-			return new BaseResult<string> { IsSuccess = true,Message = "The Reservation is Canceled" };
+			return new BaseResult<string> { IsSuccess = true,Message = _localization.Get(ValidationError.PatientError.ReservationCanceled) };
 		}
 
 		public async Task<BaseResult<string>> CompleteProfileAsync(PatientRequestDto patientRequestDto, string appuserid)
@@ -50,14 +53,14 @@ namespace Vax.Service.Implmentation
 
 			if(user == null)
 			{
-				throw new CustomException("InValid User") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.InvalidUser)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var oldPatient = await _unitOfWork.Patients.FindAsync(x => x.AppUserId == appuserid);
 
 			if(oldPatient != null)
 			{
-				throw new CustomException("This Patient Is Profile is Complete") { StatusCode = (int) HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.ProfileAlreadyComplete)) { StatusCode = (int) HttpStatusCode.BadRequest };
 			}
 
 			var patient = _mapper.Map<Patient>(patientRequestDto);
@@ -66,7 +69,7 @@ namespace Vax.Service.Implmentation
 
 			await _unitOfWork.Patients.AddAsync(patient);
 			_unitOfWork.Complete();
-			return new BaseResult<string> { Data = patient.Id.ToString(), Message = "Profile Patient is Completed" };
+			return new BaseResult<string> { Data = patient.Id.ToString(), Message = _localization.Get(ValidationError.PatientError.ProfileCompleted) };
 		}
 
 		public async Task<BaseResult<string>> DeleteProfile(int PatientId)
@@ -74,13 +77,13 @@ namespace Vax.Service.Implmentation
 			var Patient = await _unitOfWork.Patients.GetByIdAsync(PatientId);
 			if(Patient == null)
 			{
-				throw new CustomException("Patient is not Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.PatientNotFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			_unitOfWork.Patients.Delete(Patient);
 			_unitOfWork.Complete();
 
-			return new BaseResult<string> { Data = Patient.Id.ToString(), Message = "This Patient is Deleted Successfully" };
+			return new BaseResult<string> { Data = Patient.Id.ToString(), Message = _localization.Get(ValidationError.PatientError.PatientDeletedSuccessfully) };
 		}
 
 		public async Task<BaseResult<IReadOnlyList<ReservationResponseDto>>> GetAllReservation()
@@ -89,12 +92,12 @@ namespace Vax.Service.Implmentation
 
 			if (Reservations is null)
 			{
-				throw new CustomException("Reservations Not Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.ReservationsNotFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var reservationMap = _mapper.Map<IReadOnlyList<ReservationResponseDto>>(Reservations);
 
-			return new BaseResult<IReadOnlyList<ReservationResponseDto>> { Data = reservationMap,Message = "Data Retrieve Successfully.." };
+			return new BaseResult<IReadOnlyList<ReservationResponseDto>> { Data = reservationMap,Message = _localization.Get(ValidationError.PatientError.DataRetrieveSuccessfully) };
 		}
 
 		public async Task<BaseResult<PatientResponseDto>> GetPatientAsync(int Id)
@@ -102,12 +105,12 @@ namespace Vax.Service.Implmentation
 			var Patient = await _unitOfWork.Patients.GetByIdAsync(Id);
 			if(Patient == null)
 			{
-				throw new CustomException("No Patient is Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.NoPatientFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var Patientmap = _mapper.Map<PatientResponseDto>(Patient);
 
-			return new BaseResult<PatientResponseDto> { Data = Patientmap, Message = "Data Retrieve Successfully " };
+			return new BaseResult<PatientResponseDto> { Data = Patientmap, Message = _localization.Get(ValidationError.PatientError.DataRetrieveSuccessfully) };
 		}
 
 		public async Task<BaseResult<ReservationResponseDto>> GetReservationById(int Id)
@@ -116,12 +119,12 @@ namespace Vax.Service.Implmentation
 
 			if(Reservation == null)
 			{
-				throw new CustomException("No Reservation is Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.NoPatientFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var Map = _mapper.Map<ReservationResponseDto>(Reservation);
 
-			return new BaseResult<ReservationResponseDto> { Data = Map, Message = "Data Retrieve Successfully " };
+			return new BaseResult<ReservationResponseDto> { Data = Map, Message = _localization.Get(ValidationError.PatientError.DataRetrieveSuccessfully) };
 		}
 
 		public async Task<BaseResult<VaccineCenterWithVaccinesResponseDto>> GetVaccineCenterWithVaccines(int VaccineCenterId)
@@ -130,12 +133,12 @@ namespace Vax.Service.Implmentation
 
 			if(vaccineCenter == null)
 			{
-				throw new CustomException("No Vaccine Center Not Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.NoVaccineCenterFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var Map = _mapper.Map<VaccineCenterWithVaccinesResponseDto>(vaccineCenter);
 
-			return new BaseResult<VaccineCenterWithVaccinesResponseDto> { Data = Map,Message = "Data Retrieve Successfully" };
+			return new BaseResult<VaccineCenterWithVaccinesResponseDto> { Data = Map,Message = _localization.Get(ValidationError.PatientError.DataRetrieveSuccessfully) };
 		}
 
 		public async Task<BaseResult<string>> PatientReservation(ReservationRequestDto reservationRequestDto, string appuserid)
@@ -144,20 +147,20 @@ namespace Vax.Service.Implmentation
 
 			if (Patient is null)
 			{
-				throw new CustomException("No Patient Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.NoPatientFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var Vaccine = await _unitOfWork.Vaccines.FindAsync(x => x.Name == reservationRequestDto.VaccineName);
 
 			if(Vaccine == null)
 			{
-				throw new CustomException("No Vaccine Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.NoVaccineFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 			var VaccineCenter = await _unitOfWork.VaccinesCenter.FindAsync(x => x.Name == reservationRequestDto.VaccineCenterName);
 
 			if(VaccineCenter is null)
 			{
-				throw new CustomException("No VaccineCenter Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.NoVaccineCenterFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var reservation = await _unitOfWork.Reservations.FindAsync(x => x.PatientId == Patient.Id
@@ -180,20 +183,20 @@ namespace Vax.Service.Implmentation
 				await _unitOfWork.Reservations.AddAsync(reservation);
 				_unitOfWork.Complete();
 
-				return new BaseResult<string> { IsSuccess = true, Message = "Patient Reserve Successfully " };
+				return new BaseResult<string> { IsSuccess = true, Message = _localization.Get(ValidationError.PatientError.PatientReservedSuccessfully) };
 			}
 
 			if (reservation is null && reservationRequestDto.Equals(DoseNumber.Second) || reservation is not null
 				&& reservation.VaccineId != Vaccine.Id && reservationRequestDto.DoseNumber.Equals(DoseNumber.Second))
 			{
-				throw new CustomException("You Can Not Reserve Second Dose Before First One") { StatusCode= (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.CannotReserveSecondDoseFirst)) { StatusCode= (int)HttpStatusCode.BadRequest };
 
 			}
 
 			if(reservation is not null && reservation.DoseNumber.Equals(DoseNumber.First)
 				== reservationRequestDto.DoseNumber.Equals(DoseNumber.First) && Vaccine.Id == reservation.VaccineId)
 			{
-				throw new CustomException("You Already Take The First Dose ") { StatusCode =  (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.AlreadyTakenFirstDose)) { StatusCode =  (int)HttpStatusCode.BadRequest };
 			}
 
 			if (reservation is not null && reservation.DoseNumber.Equals(DoseNumber.First)
@@ -201,16 +204,16 @@ namespace Vax.Service.Implmentation
 			{
 				if (reservationRequestDto.ReservationDate.Day - reservation.ReservationDate.Day < Vaccine.TimeGapBetweenDoses)
 				{
-					throw new CustomException($"You Must Take Second Dose After {Vaccine.TimeGapBetweenDoses} Days") { StatusCode = (int)HttpStatusCode.BadRequest };
+					throw new CustomException(string.Format(_localization.Get(ValidationError.PatientError.MustWaitBetweenDoses), Vaccine.TimeGapBetweenDoses)) { StatusCode = (int)HttpStatusCode.BadRequest };
 				}
 				_mapper.Map(reservationRequestDto,reservation);
 				_unitOfWork.Complete();
 
-				return new BaseResult<string> { IsSuccess = true, Message = "You Take The Second Dose" };
+				return new BaseResult<string> { IsSuccess = true, Message = _localization.Get(ValidationError.PatientError.SecondDoseTaken) };
 			}
 			else
 			{
-				throw new CustomException("Can Not Reserve Second Dose Before First One must be Accepted") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.CannotReserveSecondDoseNotApproved)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 		}
 
@@ -220,7 +223,7 @@ namespace Vax.Service.Implmentation
 
 			if(user == null)
 			{
-				throw new CustomException("InValid User") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.PatientError.InvalidUser)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var oldPatient = await _unitOfWork.Patients.FindAsync(x => x.AppUserId == appuserid);
@@ -241,7 +244,7 @@ namespace Vax.Service.Implmentation
 				_unitOfWork.Complete();
 			}
 
-			return new BaseResult<string> { IsSuccess = true, Message = "Data Is Updated Successfully " };
+			return new BaseResult<string> { IsSuccess = true, Message = _localization.Get(ValidationError.PatientError.DataUpdatedSuccessfully) };
 		}
 	}
 }

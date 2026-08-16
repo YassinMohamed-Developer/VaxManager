@@ -12,6 +12,7 @@ using Vax.Repository.Interface;
 using Vax.Service.DTOS.ResponseDto;
 using Vax.Service.Helper;
 using Vax.Service.Interface;
+using Vax.Service.Shared;
 
 namespace Vax.Service.Implmentation
 {
@@ -20,23 +21,25 @@ namespace Vax.Service.Implmentation
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IMapper _mapper;
 		private readonly ILogger<AdminService> _logger;
+		private readonly ILocalizationService _localization;
 
-		public AdminService(IUnitOfWork unitOfWork,IMapper mapper,ILogger<AdminService> logger)
-        {
+		public AdminService(IUnitOfWork unitOfWork,IMapper mapper,ILogger<AdminService> logger,ILocalizationService localization)
+		{
 			_unitOfWork = unitOfWork;
 			_mapper = mapper;
 			_logger = logger;
+			_localization = localization;
 		}
-        public async Task<BaseResult<AdminResponseDto>> GetAdminById(int id)
+		public async Task<BaseResult<AdminResponseDto>> GetAdminById(int id)
 		{
 			var admin = await _unitOfWork.Admins.GetByIdAsync(id);
 			if (admin == null)
 			{
-				throw new CustomException("Admin Not Found") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.AdminError.AdminNotFound)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 			var adminmap = _mapper.Map<AdminResponseDto>(admin);
 
-			return new BaseResult<AdminResponseDto> { Data = adminmap,Message = "Data Retrieve Successfully " };
+			return new BaseResult<AdminResponseDto> { Data = adminmap,Message = _localization.Get(ValidationError.AdminError.DataRetrieveSuccessfully) };
 		}
 
 		public async Task<BaseResult<IReadOnlyList<PatientResponseDto>>> GetAllPatients()
@@ -45,14 +48,14 @@ namespace Vax.Service.Implmentation
 
 			if (Patient == null)
 			{
-				throw new CustomException("No Patients Added") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.AdminError.NoPatientsAdded)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var PatientMap = _mapper.Map<IReadOnlyList<PatientResponseDto>>(Patient);
 
 
 			_logger.Log(LogLevel.Warning, "GetAllPatients method called in AdminService");
-			return new BaseResult<IReadOnlyList<PatientResponseDto>> { Data = PatientMap, Message = "Data Retrieve Successfully " };
+			return new BaseResult<IReadOnlyList<PatientResponseDto>> { Data = PatientMap, Message = _localization.Get(ValidationError.AdminError.DataRetrieveSuccessfully) };
 		}
 
 		public async Task<BaseResult<IReadOnlyList<VaccineCenterResponseDto>>> GetAllVaccineCenter()
@@ -61,12 +64,12 @@ namespace Vax.Service.Implmentation
 
 			if (VaccineCenter == null)
 			{
-				throw new CustomException("No Vaccine Center Is Added") { StatusCode = (int)HttpStatusCode.BadRequest };
+				throw new CustomException(_localization.Get(ValidationError.AdminError.NoVaccineCenterAdded)) { StatusCode = (int)HttpStatusCode.BadRequest };
 			}
 
 			var VaccineCenterMap = _mapper.Map<IReadOnlyList<VaccineCenterResponseDto>>(VaccineCenter);
 
-			return new BaseResult<IReadOnlyList<VaccineCenterResponseDto>> { Data = VaccineCenterMap,Message = "Data Retrieve Successfully " };
+			return new BaseResult<IReadOnlyList<VaccineCenterResponseDto>> { Data = VaccineCenterMap,Message = _localization.Get(ValidationError.AdminError.DataRetrieveSuccessfully) };
 		}
 	}
 }

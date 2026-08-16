@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="This is Invalid Email " xml:space="preserve">
+    <value>هذا البريد الإلكتروني غير صالح</value>
+  </data>
+  <data name="Invalid credentials for " xml:space="preserve">
+    <value>بيانات الاعتماد غير صحيحة</value>
+  </data>
+  <data name="This Email already exists" xml:space="preserve">
+    <value>هذا البريد الإلكتروني موجود بالفعل</value>
+  </data>
+  <data name="Username already exists." xml:space="preserve">
+    <value>اسم المستخدم موجود بالفعل</value>
+  </data>
+  <data name="Registration completed successfully." xml:space="preserve">
+    <value>اكتمل التسجيل بنجاح</value>
+  </data>
+  <data name="The operation could not be completed." xml:space="preserve">
+    <value>تعذر إكمال العملية</value>
+  </data>
+  <data name="Your password has been changed." xml:space="preserve">
+    <value>تم تغيير كلمة المرور الخاصة بك</value>
+  </data>
+  <data name="Please check your email." xml:space="preserve">
+    <value>يرجى التحقق من بريدك الإلكتروني</value>
+  </data>
+  <data name="Failed to create the user." xml:space="preserve">
+    <value>فشل إنشاء المستخدم</value>
+  </data>
+  <data name="Invalid token." xml:space="preserve">
+    <value>رمز غير صالح</value>
+  </data>
+  <data name="Google authentication failed." xml:space="preserve">
+    <value>فشل المصادقة عبر جوجل</value>
+  </data>
+  <data name="Login successful." xml:space="preserve">
+    <value>تم تسجيل الدخول بنجاح</value>
+  </data>
+  <data name="InValid User" xml:space="preserve">
+    <value>مستخدم غير صحيح</value>
+  </data>
+  <data name="This Patient Is Profile is Complete" xml:space="preserve">
+    <value>ملف هذا المريض مكتمل بالفعل</value>
+  </data>
+  <data name="Patient is not Found" xml:space="preserve">
+    <value>لم يتم العثور على المريض</value>
+  </data>
+  <data name="No Patient is Found" xml:space="preserve">
+    <value>لم يتم العثور على أي مريض</value>
+  </data>
+  <data name="Reservations Not Found" xml:space="preserve">
+    <value>لم يتم العثور على حجوزات</value>
+  </data>
+  <data name="No Vaccine Found" xml:space="preserve">
+    <value>لم يتم العثور على اللقاح</value>
+  </data>
+  <data name="No VaccineCenter Found" xml:space="preserve">
+    <value>لم يتم العثور على مركز اللقاح</value>
+  </data>
+  <data name="You Can Not Reserve Second Dose Before First One" xml:space="preserve">
+    <value>لا يمكنك حجز الجرعة الثانية قبل الجرعة الأولى</value>
+  </data>
+  <data name="You Already Take The First Dose " xml:space="preserve">
+    <value>لقد تلقيت الجرعة الأولى بالفعل</value>
+  </data>
+  <data name="You Must Take Second Dose After {0} Days" xml:space="preserve">
+    <value>يجب عليك تلقي الجرعة الثانية بعد {0} أيام</value>
+  </data>
+  <data name="You Take The Second Dose" xml:space="preserve">
+    <value>لقد تلقيت الجرعة الثانية</value>
+  </data>
+  <data name="Can Not Reserve Second Dose Before First One must be Accepted" xml:space="preserve">
+    <value>لا يمكن حجز الجرعة الثانية قبل قبول الجرعة الأولى</value>
+  </data>
+  <data name="The Reservation is Canceled" xml:space="preserve">
+    <value>تم إلغاء الحجز</value>
+  </data>
+  <data name="Profile Patient is Completed" xml:space="preserve">
+    <value>اكتمل ملف المريض</value>
+  </data>
+  <data name="This Patient is Deleted Successfully" xml:space="preserve">
+    <value>تم حذف المريض بنجاح</value>
+  </data>
+  <data name="Data Retrieve Successfully " xml:space="preserve">
+    <value>تم استرجاع البيانات بنجاح</value>
+  </data>
+  <data name="Patient Reserve Successfully " xml:space="preserve">
+    <value>تم إنشاء حجز المريض بنجاح</value>
+  </data>
+  <data name="Data Is Updated Successfully " xml:space="preserve">
+    <value>تم تحديث البيانات بنجاح</value>
+  </data>
+  <data name="Invalid User" xml:space="preserve">
+    <value>مستخدم غير صحيح</value>
+  </data>
+  <data name="This VaccineCenter Is Profile is Complete" xml:space="preserve">
+    <value>ملف مركز اللقاح هذا مكتمل بالفعل</value>
+  </data>
+  <data name="No VaccineCene Not Found" xml:space="preserve">
+    <value>لم يتم العثور على مركز اللقاح</value>
+  </data>
+  <data name="No VaccineCenter is Found" xml:space="preserve">
+    <value>لم يتم العثور على مركز اللقاح</value>
+  </data>
+  <data name="No Vaccine is Found" xml:space="preserve">
+    <value>لم يتم العثور على اللقاح</value>
+  </data>
+  <data name="No Vaccines is Found" xml:space="preserve">
+    <value>لم يتم العثور على لقاحات</value>
+  </data>
+  <data name="Unauthorized Access" xml:space="preserve">
+    <value>وصول غير مصرح</value>
+  </data>
+  <data name="This VaccineCenter Account Not Registered" xml:space="preserve">
+    <value>حساب مركز اللقاح هذا غير مسجل</value>
+  </data>
+  <data name="Reservation Not Found" xml:space="preserve">
+    <value>لم يتم العثور على الحجز</value>
+  </data>
+  <data name="The Reservation Not Accepted Or This Vaccine Center Account Not Have Reservations" xml:space="preserve">
+    <value>لم يتم قبول الحجز أو أن مركز اللقاح هذا لا يحتوي على حجوزات</value>
+  </data>
+  <data name="The Reservation Not Rejected Because It Is Accepted. Or This Vaccine Center Account Not Have Reservations" xml:space="preserve">
+    <value>لا يمكن رفض الحجز لأنه مقبول، أو أن مركز اللقاح هذا لا يحتوي على حجوزات</value>
+  </data>
+  <data name="Vaccine Center is Not Found" xml:space="preserve">
+    <value>لم يتم العثور على مركز اللقاح</value>
+  </data>
+  <data name="No Patients With Vaccines in this VaccineCenter.." xml:space="preserve">
+    <value>لا توجد مرضى مع لقاحات في مركز اللقاح هذا</value>
+  </data>
+  <data name="The Profile Is Completed" xml:space="preserve">
+    <value>اكتمل الملف الشخصي</value>
+  </data>
+  <data name="Vaccine Is Created" xml:space="preserve">
+    <value>تم إنشاء اللقاح</value>
+  </data>
+  <data name="Profile Is Deleted" xml:space="preserve">
+    <value>تم حذف الملف الشخصي</value>
+  </data>
+  <data name="Data Is Deleted Successfully" xml:space="preserve">
+    <value>تم حذف البيانات بنجاح</value>
+  </data>
+  <data name="Data Is Retrieve Successfully" xml:space="preserve">
+    <value>تم استرجاع البيانات بنجاح</value>
+  </data>
+  <data name="Data Is Retrieve Successfully!" xml:space="preserve">
+    <value>تم استرجاع البيانات بنجاح!</value>
+  </data>
+  <data name="Data Updated Successfully" xml:space="preserve">
+    <value>تم تحديث البيانات بنجاح</value>
+  </data>
+  <data name="Admin Not Found" xml:space="preserve">
+    <value>لم يتم العثور على المسؤول</value>
+  </data>
+  <data name="No Patients Added" xml:space="preserve">
+    <value>لم يتم إضافة أي مرضى</value>
+  </data>
+  <data name="No Vaccine Center Is Added" xml:space="preserve">
+    <value>لم يتم إضافة مراكز اللقاح</value>
+  </data>
+</root>
